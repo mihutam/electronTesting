@@ -1,6 +1,7 @@
 require('update-electron-app')({
   logger: require('electron-log')
 })
+require('update-electron-app')()
 
 const path = require('path')
 const glob = require('glob')
@@ -9,6 +10,12 @@ const {app, BrowserWindow} = require('electron')
 const debug = /--debug/.test(process.argv[2])
 
 if (process.mas) app.setName('Electron APIs')
+
+const DownloadManager = require("electron-download-manager");
+
+DownloadManager.register({
+  downloadFolder: app.getPath("downloads") + "/my-app"
+});
 
 let mainWindow = null
 
