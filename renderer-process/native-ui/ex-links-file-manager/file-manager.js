@@ -13,7 +13,7 @@ const downloadBtn = document.getElementById('download-file')
 
 downloadBtn.addEventListener('click', (event) => {
   require("electron").remote.require("electron-download-manager").download({
-    url: "https://i.imgur.com/H124sSq.jpg"
+    url: "https://dummyimage.com/600x400/000/fff"
   }, function (error, info) {
     if (error) {
       console.log(error);

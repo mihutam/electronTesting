@@ -1,10 +1,12 @@
 require('update-electron-app')({
   logger: require('electron-log')
 })
+require('update-electron-app')()
+
 
 const path = require('path')
 const glob = require('glob')
-const {app, BrowserWindow} = require('electron')
+const {app, BrowserWindow, autoUpdater, dialog} = require('electron')
 
 const debug = /--debug/.test(process.argv[2])
 
@@ -15,6 +17,15 @@ const DownloadManager = require("electron-download-manager");
 DownloadManager.register({
   downloadFolder: app.getPath("downloads") + "/my-app"
 });
+
+const server = 'https://electron-testing.vercel.app/'
+const url = `${server}/update/${process.platform}/${app.getVersion()}`
+
+autoUpdater.setFeedURL({ url })
+
+setInterval(() => {
+  autoUpdater.checkForUpdates()
+}, 60000)
 
 let mainWindow = null
 
@@ -61,6 +72,20 @@ function initialize () {
     if (process.platform !== 'darwin') {
       app.quit()
     }
+  })
+
+  autoUpdater.on('update-downloaded', (event, releaseNotes, releaseName) => {
+    const dialogOpts = {
+      type: 'info',
+      buttons: ['Restart', 'Later'],
+      title: 'Application Update',
+      message: process.platform === 'win32' ? releaseNotes : releaseName,
+      detail: 'A new version has been downloaded. Restart the application to apply the updates.'
+    }
+
+    dialog.showMessageBox(dialogOpts).then((returnValue) => {
+      if (returnValue.response === 0) autoUpdater.quitAndInstall()
+    })
   })
 
   app.on('activate', () => {
